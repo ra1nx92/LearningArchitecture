@@ -15,7 +15,7 @@ class MainViewModel:ViewModel() {
 
     // делать так нельзя, для этого используется иньекция зависимостей, до которой я еще увы не допер
     //presentation слой ничего не должен знать о data слое, и наоборот
-    val repository = ShopListRepositoryImpl()
+    val repository = ShopListRepositoryImpl
 
     private val getShopListUseCase = GetShopListUseCase(repository)
     private val deleteShopListUseCase = DeleteShopItemUseCase(repository)
@@ -24,22 +24,15 @@ class MainViewModel:ViewModel() {
     // нельзя создать обьект LiveData т.к он абстрактный, но у него есть наследник MutableLiveData
     // он такой же как и LiveData но в который можно вставлять обьекты,
     // и подписчики его сразу получат
-    val shopList = MutableLiveData<List<ShopItem>>()
+    val shopList = getShopListUseCase.getShopList()
 
-    fun getShopList(){
-        val list = getShopListUseCase.getShopList() //полученое значение, список
-        shopList.value = list //вставка значения в LiveData. value можно вызывать только из
-                            //потока иначе краш. Для вызова из другого потока используется postValue
-    }
 
     fun deleteShopItem(shopItem:ShopItem){
          deleteShopListUseCase.deleteShopItem(shopItem)
-        getShopList()
     }
 
     fun changeEnabledItemState(shopItem: ShopItem){
         val newItem = shopItem.copy(enabled = !shopItem.enabled)
         editShopListUseCase.editShopItem(newItem)
-        getShopList()
     }
 }
