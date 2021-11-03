@@ -30,7 +30,7 @@ class MainViewModel:ViewModel() {
     fun deleteShopItem(shopItem:ShopItem){
          deleteShopListUseCase.deleteShopItem(shopItem)
     }
-
+    //метод для смены макета элемента при долгом нажатии
     fun changeEnabledItemState(shopItem: ShopItem){
         val newItem = shopItem.copy(enabled = !shopItem.enabled)
         editShopListUseCase.editShopItem(newItem)

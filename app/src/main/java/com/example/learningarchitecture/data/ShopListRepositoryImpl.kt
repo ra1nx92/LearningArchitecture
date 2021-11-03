@@ -13,7 +13,10 @@ object ShopListRepositoryImpl : ShopListRepository {
     private var autoIncrementId = 0
 
     init {
-
+        for(i in 1 until 30){
+            val item1 = ShopItem("qwerty",i,true,i)
+            addShopItem(item1)
+        }
     }
 
     override fun addShopItem(shopItem: ShopItem) {
