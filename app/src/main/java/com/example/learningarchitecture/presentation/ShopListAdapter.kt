@@ -20,6 +20,7 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         }
     //функция клика по элементу
     var onShopItemLongClickListener:((ShopItem) -> Unit)? = null
+    var onShopItemClickListener:((ShopItem) -> Unit)? = null
 
     //в методе onCreateViewHolder из макета создается вью, сама ячейка будущего списка
     //количество ячеек создается либо на необходимое количество, если все влазят в экран,
@@ -51,6 +52,10 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         with(holder) {
             binding.tvName.text = shopItem.name
             binding.tvCount.text = shopItem.count.toString()
+            itemView.setOnClickListener {
+                onShopItemLongClickListener?.invoke(shopItem)
+
+            }
             itemView.setOnLongClickListener {
                 onShopItemLongClickListener?.invoke(shopItem)//invoke - явный вызов,
                                                             //лямбда сработает только если не придет null
@@ -78,8 +83,9 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         val binding = ItemRvEnableBinding.bind(view)
     }
         //интерфейс для функции клика по элементу
-    interface OnShopItemLongClick{
+    interface OnShopItemClick{
         fun onShopItemLongClick(shopItem: ShopItem)
+        fun onShopItemClick(shopItem: ShopItem)
     }
 
     companion object {
