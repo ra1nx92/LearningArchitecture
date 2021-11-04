@@ -3,15 +3,16 @@ package com.example.learningarchitecture.presentation
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.learningarchitecture.R
 import com.example.learningarchitecture.databinding.ItemRvEnableBinding
 import com.example.learningarchitecture.domain.ShopItem
 import java.lang.RuntimeException
-//реализация через ListAdapter
+//реализация через ListAdapter, наследуемся от него
 //упрощает работу с адаптером, уменьшает кол во кода, делая за нас большую часть работы под капотом
+//первым параметром указывается <Тип с которым работаем, Тип ViewHolder>(Экземпляр класса Callback())
+// в котором показываем как сравнивать обьекты
 class ShopListAdapter : ListAdapter<ShopItem,ShopListAdapter.ShopItemViewHolder>(ShopItemDiffCallback()) {
 
     //функция клика по элементу
@@ -48,6 +49,7 @@ class ShopListAdapter : ListAdapter<ShopItem,ShopListAdapter.ShopItemViewHolder>
         with(holder) {
             binding.tvName.text = shopItem.name
             binding.tvCount.text = shopItem.count.toString()
+
             itemView.setOnClickListener {
                 onShopItemLongClickListener?.invoke(shopItem)
             }

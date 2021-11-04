@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val item = shopListAdapter.currentList[viewHolder.adapterPosition]
+                //currentList - текущий список с которым работает адаптер (ShopList)
                 viewModel.deleteShopItem(item)
             }
 
