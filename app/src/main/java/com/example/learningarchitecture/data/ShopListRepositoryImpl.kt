@@ -9,7 +9,7 @@ import java.lang.RuntimeException
 //data слой зависит от domain слоя, и знает о нем все. Domain слой ничего не знает о data слое
 object ShopListRepositoryImpl : ShopListRepository {
     private val shopListLd = MutableLiveData<List<ShopItem>>()
-    private val shoplist = mutableListOf<ShopItem>()
+    private val shoplist = sortedSetOf<ShopItem>({ o1, o2 -> o1.id.compareTo(o2.id) })
     private var autoIncrementId = 0
 
     init {
