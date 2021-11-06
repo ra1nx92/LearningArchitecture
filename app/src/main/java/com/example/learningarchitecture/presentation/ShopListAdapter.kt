@@ -1,26 +1,22 @@
 package com.example.learningarchitecture.presentation
 
-import android.content.DialogInterface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.learningarchitecture.R
 import com.example.learningarchitecture.databinding.ItemRvEnableBinding
 import com.example.learningarchitecture.domain.ShopItem
 import java.lang.RuntimeException
+//реализация через ListAdapter
+//упрощает работу с адаптером, уменьшает кол во кода, делая за нас большую часть работы под капотом
+class ShopListAdapter : ListAdapter<ShopItem,ShopListAdapter.ShopItemViewHolder>(ShopItemDiffCallback()) {
 
-class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
-
-    var shopList = listOf<ShopItem>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
     //функция клика по элементу
-    var onShopItemLongClickListener:((ShopItem) -> Unit)? = null
-    var onShopItemClickListener:((ShopItem) -> Unit)? = null
+    var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
+    var onShopItemClickListener: ((ShopItem) -> Unit)? = null
 
     //в методе onCreateViewHolder из макета создается вью, сама ячейка будущего списка
     //количество ячеек создается либо на необходимое количество, если все влазят в экран,
@@ -48,30 +44,29 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
 
     //в этом методе в макет устанавливаются необходимые данные
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
-        val shopItem = shopList[position]
+        val shopItem = getItem(position)
         with(holder) {
             binding.tvName.text = shopItem.name
             binding.tvCount.text = shopItem.count.toString()
             itemView.setOnClickListener {
                 onShopItemLongClickListener?.invoke(shopItem)
-
             }
             itemView.setOnLongClickListener {
                 onShopItemLongClickListener?.invoke(shopItem)//invoke - явный вызов,
-                                                            //лямбда сработает только если не придет null
+                //лямбда сработает только если не придет null
                 true
             }
         }
     }
+    //----------------------------------------------------------------------
+    //реализация ListAdapter позволяет не переопределять метод getItemCount
+    //----------------------------------------------------------------------
 
-    //этот метод возвращает количество элементов в коллекци
-    override fun getItemCount(): Int {
-        return shopList.size
-    }
+
     //метод нужен чтобы определить какой макет нужено использовать для конкретного элемента
     //это значение придет в метод onCreateViewHolder в качестве парамента viewType
     override fun getItemViewType(position: Int): Int {
-        val item = shopList[position]
+        val item = getItem(position)
         return if (item.enabled) {
             VIEW_TYPE_ENABLED
         } else
@@ -81,11 +76,6 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     //класс - хранилище для наших вью, к которым потом привязываются данные
     class ShopItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding = ItemRvEnableBinding.bind(view)
-    }
-        //интерфейс для функции клика по элементу
-    interface OnShopItemClick{
-        fun onShopItemLongClick(shopItem: ShopItem)
-        fun onShopItemClick(shopItem: ShopItem)
     }
 
     companion object {
