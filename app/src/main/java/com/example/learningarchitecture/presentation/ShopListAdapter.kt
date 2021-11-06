@@ -51,7 +51,7 @@ class ShopListAdapter : ListAdapter<ShopItem,ShopListAdapter.ShopItemViewHolder>
             binding.tvCount.text = shopItem.count.toString()
 
             itemView.setOnClickListener {
-                onShopItemLongClickListener?.invoke(shopItem)
+                onShopItemClickListener?.invoke(shopItem)
             }
             itemView.setOnLongClickListener {
                 onShopItemLongClickListener?.invoke(shopItem)//invoke - явный вызов,
