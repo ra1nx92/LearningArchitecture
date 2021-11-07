@@ -12,12 +12,7 @@ object ShopListRepositoryImpl : ShopListRepository {
     private val shoplist = sortedSetOf<ShopItem>({ o1, o2 -> o1.id.compareTo(o2.id) })
     private var autoIncrementId = 0
 
-    init {
-        for(i in 1 until 30){
-            val item1 = ShopItem("qwerty",i,true,i)
-            addShopItem(item1)
-        }
-    }
+
 
     override fun addShopItem(shopItem: ShopItem) {
         if(shopItem.id == ShopItem.UNDEFINED_ID) {

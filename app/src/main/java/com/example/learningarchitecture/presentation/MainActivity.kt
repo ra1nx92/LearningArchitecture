@@ -1,13 +1,12 @@
 package com.example.learningarchitecture.presentation
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.learningarchitecture.databinding.ActivityMainBinding
-import com.example.learningarchitecture.domain.ShopItem
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -24,6 +23,10 @@ class MainActivity : AppCompatActivity() {
             shopListAdapter.submitList(it) //реализация с ListAdapter
             //при вызове метода submitList запускается новый поток
             // в котором проходят все вычисления, после которых список RV обновляется
+        }
+        binding.btnAddShopItem.setOnClickListener {
+            val intent = ShopItemActivity.newIntentAddItem(this)
+            startActivity(intent)
         }
     }
 
@@ -51,6 +54,8 @@ class MainActivity : AppCompatActivity() {
     private fun setupClick() {
         shopListAdapter.onShopItemClickListener = {
             Log.d("rewq", it.toString())
+            val intent = ShopItemActivity.newIntentEditItem(this,it.id)
+            startActivity(intent)
         }
     }
 
@@ -73,6 +78,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val item = shopListAdapter.currentList[viewHolder.adapterPosition]
+                //currentList - текущий список с которым работает адаптер (ShopList)
                 viewModel.deleteShopItem(item)
             }
 
