@@ -1,8 +1,9 @@
-package com.example.learningarchitecture.presentation
+package com.example.learningarchitecture.presentation.vm
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.learningarchitecture.data.ShopListRepositoryImpl
 import com.example.learningarchitecture.domain.AddShopItemUseCase
 import com.example.learningarchitecture.domain.EditShopItemUseCase
@@ -10,10 +11,10 @@ import com.example.learningarchitecture.domain.GetShopItemUseCase
 import com.example.learningarchitecture.domain.ShopItem
 import java.lang.Exception
 
-class ShopItemViewModel : ViewModel() {
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
     // делать так нельзя, для этого используется иньекция зависимостей, до которой я еще увы не допер
     //presentation слой ничего не должен знать о data слое, и наоборот
-    private val repository = ShopListRepositoryImpl
+    private val repository = ShopListRepositoryImpl(application)
 
     private val getShopItemUseCase = GetShopItemUseCase(repository)
     private val addShopItemUseCase = AddShopItemUseCase(repository)

@@ -1,4 +1,4 @@
-package com.example.learningarchitecture.presentation
+package com.example.learningarchitecture.presentation.vm
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

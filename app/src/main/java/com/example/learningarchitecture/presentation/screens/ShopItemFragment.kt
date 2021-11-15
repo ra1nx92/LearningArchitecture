@@ -1,7 +1,5 @@
-package com.example.learningarchitecture.presentation
+package com.example.learningarchitecture.presentation.screens
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.learningarchitecture.R
 import com.example.learningarchitecture.databinding.FragmentShopItemBinding
 import com.example.learningarchitecture.domain.ShopItem
+import com.example.learningarchitecture.presentation.vm.ShopItemViewModel
 import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemFragment : Fragment() {

@@ -1,4 +1,4 @@
-package com.example.learningarchitecture.presentation
+package com.example.learningarchitecture.presentation.screens
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.learningarchitecture.R
 import com.example.learningarchitecture.databinding.ActivityMainBinding
+import com.example.learningarchitecture.presentation.ShopListAdapter
+import com.example.learningarchitecture.presentation.vm.MainViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -46,8 +48,12 @@ class MainActivity : AppCompatActivity() {
     private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction()
-            .add(R.id.shop_item_container, fragment)
-            .addToBackStack(null)
+            .replace(R.id.shop_item_container, fragment)// replace заменяет фрагмент в контейнере
+                //если там какой то фрагмент уже был, а метод add добавляет его поверх другого
+                //лучше использовать replace
+            .addToBackStack(null) //чтобы по кнопке назад фрагмент закрывался,
+            //иначе будет открываться предъидущий фрагмент. В скобках можно указать имя фрагмента
+            //на который можно перейти например с 3 на 1, минуя 2, но он уже должен быть в стеке
             .commit()
     }
 
