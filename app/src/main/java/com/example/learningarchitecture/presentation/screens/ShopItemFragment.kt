@@ -1,23 +1,23 @@
-package com.example.learningarchitecture.presentation
+package com.example.learningarchitecture.presentation.screens
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.service.controls.templates.TemperatureControlTemplate.MODE_UNKNOWN
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.learningarchitecture.R
-import com.example.learningarchitecture.databinding.ActivityShopItemBinding
+import com.example.learningarchitecture.databinding.FragmentShopItemBinding
 import com.example.learningarchitecture.domain.ShopItem
+import com.example.learningarchitecture.presentation.vm.ShopItemViewModel
 import com.google.android.material.textfield.TextInputLayout
 
-class ShopItemActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityShopItemBinding
+class ShopItemFragment : Fragment() {
+    private lateinit var binding: FragmentShopItemBinding
     private lateinit var viewModel: ShopItemViewModel
 
     private lateinit var titName: TextInputLayout
@@ -29,12 +29,21 @@ class ShopItemActivity : AppCompatActivity() {
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityShopItemBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    //метод создает view из макета, тут работать еще нельзя, т.к
+    // нельзя знать наверняка что view уже создана
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_shop_item, container, false)
+    }
 
-        parseIntent() //получаем даннные из интента
+    //метод вызывается когда view уже точно была создана, здесь и начинаем работать
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentShopItemBinding.bind(view)
+        parseParams() //получаем параментры при создании фрагмента
         viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java] //инициализация VM
         initViews() // инициализация view элементов
         addTextChange() //слушатели ввода текста
@@ -43,7 +52,10 @@ class ShopItemActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.errorInputCount.observe(this) {
+        //в качестве observe во фрагментах передается viewLifecycleOwner вместо this, т.к
+        // жизненный цикл фрагмента и view которую он содержит, отличается. Фрагмент может
+        // жить дольше чем живет view
+        viewModel.errorInputCount.observe(viewLifecycleOwner) {
             val message = if (it) {
                 getString(R.string.error_input_count)
             } else {
@@ -51,8 +63,7 @@ class ShopItemActivity : AppCompatActivity() {
             }
             titCount.error = message
         }
-
-        viewModel.errorInputName.observe(this) {
+        viewModel.errorInputName.observe(viewLifecycleOwner) {
             val message = if (it) {
                 getString(R.string.error_input_name)
             } else {
@@ -60,11 +71,11 @@ class ShopItemActivity : AppCompatActivity() {
             }
             titName.error = message
         }
-
-        viewModel.shouldCloseScreen.observe(this) {
-            finish()
+        viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
+            activity?.onBackPressed()
         }
     }
+
 
     private fun launchRightMode() {
         when (screenMode) {
@@ -104,7 +115,7 @@ class ShopItemActivity : AppCompatActivity() {
 
     private fun launchEditMode() {
         viewModel.getShopItem(shopItemId)
-        viewModel.shopItem.observe(this) {
+        viewModel.shopItem.observe(viewLifecycleOwner) {
             etName.setText(it.name)
             etCount.setText(it.count.toString())
         }
@@ -120,24 +131,28 @@ class ShopItemActivity : AppCompatActivity() {
     }
 
     //если выполнение прошло успешно, и нигде не упали, проинициализируются переменные
-    // screenMode и shopItemId.
-    // В зависимости от этих значений мы можем правильно настроить экран
-    private fun parseIntent() {
-        if (!intent.hasExtra(EXTRA_SCREEN_MODE)) {
+// screenMode и shopItemId.
+// В зависимости от этих значений мы можем правильно настроить экран
+    private fun parseParams() {
+        val args = requireArguments() //получаем переданные агрументы
+        if (!args.containsKey(SCREEN_MODE)) { //если не содержится ключ, выпадет исключение
             throw RuntimeException("Param screen mode is absent")
         }
-        val mode = intent.getStringExtra(EXTRA_SCREEN_MODE)
-        if (mode != MODE_EDIT && mode != MODE_ADD) {
+        val mode = args.getString(SCREEN_MODE)
+        if (mode != MODE_EDIT && mode != MODE_ADD) { //проверка, если содержится какое то
+            //непотяное значение, выпадает исключение
             throw RuntimeException("Unknown screen mode $mode")
         }
         screenMode = mode
         if (screenMode == MODE_EDIT) {
-            if (!intent.hasExtra(EXTRA_SHOP_ITEM_ID)) {
+            if (!args.containsKey(SHOP_ITEM_ID)) {//если в режиме редактирования не
+                // передали SHOP_ITEM_ID, выпадает исключение
                 throw RuntimeException("Param shop item id is absent")
             }
-            shopItemId = intent.getIntExtra(EXTRA_SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
+            shopItemId = args.getInt(SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
         }
     }
+
 
     private fun initViews() {
         titName = binding.tilCount
@@ -149,25 +164,30 @@ class ShopItemActivity : AppCompatActivity() {
 
     //константы для ключ\значение
     companion object {
-        private const val EXTRA_SCREEN_MODE = "extra_mode"
-        private const val EXTRA_SHOP_ITEM_ID = "extra_shop_item_id"
+        private const val SCREEN_MODE = "extra_mode"
+        private const val SHOP_ITEM_ID = "extra_shop_item_id"
         private const val MODE_EDIT = "mode_edit"
         private const val MODE_ADD = "mode_add"
         private const val MODE_UNKNOWN = ""
 
         //запуск экрана в режиме добавления нового элемента
-        fun newIntentAddItem(context: Context): Intent {
-            val intent = Intent(context, ShopItemActivity::class.java)
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_ADD)
-            return intent
+        fun newInstanceAddItem(): ShopItemFragment {
+            return ShopItemFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_ADD)
+                }
+            }
         }
 
         //запуск экрана в режиме редактирования
-        fun newIntentEditItem(context: Context, shopItemId: Int): Intent {
-            val intent = Intent(context, ShopItemActivity::class.java)
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_EDIT)
-            intent.putExtra(EXTRA_SHOP_ITEM_ID, shopItemId)
-            return intent
+        fun newInstanceEditItem(shopItemId: Int): ShopItemFragment {
+            return ShopItemFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_EDIT)
+                    putInt(SHOP_ITEM_ID, shopItemId)
+                }
+            }
         }
     }
+
 }

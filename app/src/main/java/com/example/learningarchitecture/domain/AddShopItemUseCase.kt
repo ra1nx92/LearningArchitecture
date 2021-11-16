@@ -5,7 +5,7 @@ package com.example.learningarchitecture.domain
 //Use case - какая то одна операция бизнес логики которую может вызвать пользователь
 
 class AddShopItemUseCase(private val shopListRepository: ShopListRepository) {
-    fun addShopItem(shopItem: ShopItem) {
+   suspend fun addShopItem(shopItem: ShopItem) {
         shopListRepository.addShopItem(shopItem)
     }
 }

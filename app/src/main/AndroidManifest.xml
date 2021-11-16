@@ -10,11 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LearningArchitecture">
         <activity
-            android:name=".presentation.ShopItemActivity"
+            android:name=".presentation.screens.ShopItemActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
-            android:name=".presentation.MainActivity"
+            android:name=".presentation.screens.MainActivity"
+            android:screenOrientation="fullSensor"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
