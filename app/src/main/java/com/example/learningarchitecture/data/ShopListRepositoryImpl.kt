@@ -19,25 +19,25 @@ class ShopListRepositoryImpl(application: Application) : ShopListRepository {
     private val mapper = ShopListMapper()
 
 
-    override fun addShopItem(shopItem: ShopItem) {
+    override suspend fun addShopItem(shopItem: ShopItem) {
         shopListDao.addShopItem(mapper.mapEntityToDbModel(shopItem))
     }
 
 
-    override fun deleteShopItem(shopItem: ShopItem) {
+    override suspend fun deleteShopItem(shopItem: ShopItem) {
         shopListDao.deleteShopItem(shopItem.id)
     }
 
 
     //в бд обработан конфликт, благодаря этому можно использовать метод для добавления
 // как метод редактирования
-    override fun editShopItem(shopItem: ShopItem) {
+    override suspend fun editShopItem(shopItem: ShopItem) {
         shopListDao.addShopItem(mapper.mapEntityToDbModel(shopItem))
     }
 
 
     //необходимо смапить обьект бд в обьект domain слоя
-    override fun getShopItem(shopItemId: Int): ShopItem {
+    override suspend fun getShopItem(shopItemId: Int): ShopItem {
         val dbModel = shopListDao.getShopItem(shopItemId)
         return mapper.mapDbModelToEntity(dbModel)
     }
@@ -54,5 +54,9 @@ class ShopListRepositoryImpl(application: Application) : ShopListRepository {
 //После перехвата значения его можно обработать и установить значение вручную
                 value = mapper.mapListDbModelToListEntity(it)
             }
-        }
+        }//так же если необходимо только преобразовать обьекты из исходной LD в другой тип,
+// можно использовать метод  Transformations.мар(shopListDao.getShopList()){
+    //mapper.mapListDbModelToListEntity(it)
+// } под капотом произойдет тоже самое, используется MediatorLiveData
+    //
 }

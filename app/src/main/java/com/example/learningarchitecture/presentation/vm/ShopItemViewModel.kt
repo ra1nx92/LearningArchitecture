@@ -4,14 +4,17 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.learningarchitecture.data.ShopListRepositoryImpl
 import com.example.learningarchitecture.domain.AddShopItemUseCase
 import com.example.learningarchitecture.domain.EditShopItemUseCase
 import com.example.learningarchitecture.domain.GetShopItemUseCase
 import com.example.learningarchitecture.domain.ShopItem
+import kotlinx.coroutines.*
 import java.lang.Exception
 
 class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
+
     // делать так нельзя, для этого используется иньекция зависимостей, до которой я еще увы не допер
     //presentation слой ничего не должен знать о data слое, и наоборот
     private val repository = ShopListRepositoryImpl(application)
@@ -19,6 +22,15 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     private val getShopItemUseCase = GetShopItemUseCase(repository)
     private val addShopItemUseCase = AddShopItemUseCase(repository)
     private val editShopItemUseCase = EditShopItemUseCase(repository)
+
+    //корутина может вызываться только в контексте корутины (coroutine scope)
+    //необходим скоуп у которого ЖЦ будет совпадать с ЖЦ ViewModel, в методе OnClear он будет
+    // останавливать свою работу
+    //в CoroutineScope необходимо передать корутин-контекст. Он описывает на каком потоке будет
+    // выполняться корутина, как реагировать на ошибки, и т.д
+    //Dispatchers позволяет выбрать на каком потоке будет идти работа корутины, Main, IO ,Default
+    //private val scope = CoroutineScope(Dispatchers.Main)
+    //в VM есть свой скоуп который не надо закрывать, он работает сам
 
     //из активити работаем с errorInput, а из вью модели с _errorInput
     //переопределяем геттер, который будет возвращать значение переменной _errorInput
@@ -40,8 +52,11 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
 
 
     fun getShopItem(shopItemId: Int) {
-        val item = getShopItemUseCase.getShopItem(shopItemId)
-        _shopItem.value = item
+        //в VM есть свой скоуп который не надо закрывать, он работает сам
+        viewModelScope.launch {
+            val item = getShopItemUseCase.getShopItem(shopItemId)
+            _shopItem.value = item
+        }
     }
 
     fun addShopItem(inputName: String?, inputCount: String?) {
@@ -49,9 +64,11 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         val count = parseCount(inputCount)
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
-            val shopItem = ShopItem(name, count, true)
-            addShopItemUseCase.addShopItem(shopItem)
-            finishWork()
+            viewModelScope.launch {
+                val shopItem = ShopItem(name, count, true)
+                addShopItemUseCase.addShopItem(shopItem)
+                finishWork()
+            }
         }
     }
 
@@ -61,9 +78,11 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
             _shopItem.value?.let {
-                val item = it.copy(name = name, count = count)
-                editShopItemUseCase.editShopItem(item)
-                finishWork()
+                viewModelScope.launch {
+                    val item = it.copy(name = name, count = count)
+                    editShopItemUseCase.editShopItem(item)
+                    finishWork()
+                }
             }
         }
     }
@@ -100,6 +119,7 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     fun resetErrorInputName() {
         _errorInputName.value = false
     }
+
     fun resetErrorInputCount() {
         _errorInputCount.value = false
     }
@@ -107,5 +127,4 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     private fun finishWork() {
         _shouldCloseScreen.value = Unit
     }
-
 }

@@ -25,19 +25,19 @@ interface ShopListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)//решение конфликтов, если в базу попадет обьект
 //с тем же ID который уже есть то он перезапишется последним пришедшим значением,
 // а если такого нет, добавится новый
-    fun addShopItem(shopItemDbModel: ShopItemDbModel)
+    suspend fun addShopItem(shopItemDbModel: ShopItemDbModel)
 
     //---------------------------------------------------------------------------------------------
 //удаление обьекта из списка БД по его ID, передается имя таблицы указанное в Entity
     // и переменная с Id обьекта
     @Query("DELETE FROM shop_items WHERE id =:shopItemId")
-    fun deleteShopItem(shopItemId: Int)
+    suspend fun deleteShopItem(shopItemId: Int)
 
     //---------------------------------------------------------------------------------------------
 //получение обьекта из списка БД по его ID, передается имя таблицы указанное в Entity
 //и переменная с Id обьекта, и на всякий случай добавляем лимит, чтобы по запросу всегда возвращался
     // только 1 элемент
     @Query("SELECT * FROM shop_items WHERE id=:shopItemId LIMIT 1")
-    fun getShopItem(shopItemId: Int): ShopItemDbModel
+    suspend fun getShopItem(shopItemId: Int): ShopItemDbModel
 
 }

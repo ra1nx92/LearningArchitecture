@@ -5,7 +5,7 @@ package com.example.learningarchitecture.domain
 //Use case - какая то одна операция бизнес логики которую может вызвать пользователь
 
 class DeleteShopItemUseCase(private val shopListRepository: ShopListRepository) {
-    fun deleteShopItem(shopItem: ShopItem) {
+    suspend fun deleteShopItem(shopItem: ShopItem) {
         shopListRepository.deleteShopItem(shopItem)
     }
 }

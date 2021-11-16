@@ -43,8 +43,7 @@ abstract class AppDataBase : RoomDatabase() {
                     application,//контекст
                     AppDataBase::class.java, //класс БД
                     NAME_DB //имя БД
-                )
-                    .build()
+                ).build()
                 INSTANCE = db //присваиваем полученное значение
                 return db
             }
